@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚽ Bolão da Copa 2026
 
-## Getting Started
+Bolão da família para a Copa do Mundo 2026 — Next.js + Postgres (Neon/Vercel) + Tailwind.
 
-First, run the development server:
+## Funcionalidades
+
+- **Palpites** nos 104 jogos, travados automaticamente no apito inicial
+- **Pontuação**: 3 pts placar exato · 1 pt vencedor/empate · mata-mata vale os 90 minutos
+- **Campeão** (+5 pts, trava antes das oitavas) e **bolões extras** (artilheiro, craque, zebra)
+- **Classificação** com os critérios de desempate do regulamento
+- **Estatísticas**: evolução da pontuação, aproveitamento, pé quente/pé frio
+- **Anti-cola**: palpites dos outros só aparecem depois que o jogo começa
+- **Admin**: lança resultados (manual ou sync com football-data.org), define o mata-mata, gerencia participantes
+- Login simples por **nome + PIN de 4 dígitos**
+
+## Rodando local
 
 ```bash
+npm install
+cp .env.example .env.local   # preencha DATABASE_URL e SESSION_SECRET
+npm run db:push              # cria as tabelas
+npm run db:seed              # 48 seleções + 104 jogos
+npm run add-participant -- "Seu Nome" 1234 --admin --avatar 👑
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy (Vercel)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Suba o repositório para o GitHub e importe na Vercel
+2. Em **Storage**, crie um banco Postgres (Neon) e conecte ao projeto
+3. Em **Settings → Environment Variables**, adicione `SESSION_SECRET` (e `FOOTBALL_DATA_API_KEY`, opcional)
+4. Localmente, com o `DATABASE_URL` de produção no `.env.local`: `npm run db:push && npm run db:seed`
+5. Crie os participantes da família pelo painel **Admin**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Script | O que faz |
+| --- | --- |
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm test` | Testes do motor de pontuação |
+| `npm run db:push` | Aplica o schema no banco |
+| `npm run db:seed` | Popula seleções e jogos (idempotente) |
+| `npm run add-participant -- "Nome" 1234 [--admin]` | Cria participante via CLI |
