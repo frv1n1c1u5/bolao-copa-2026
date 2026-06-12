@@ -123,6 +123,7 @@ function ResultsTab({
 }) {
   const [drafts, setDrafts] = useState<Record<number, { home: string; away: string }>>({});
   const [syncing, setSyncing] = useState(false);
+  const [savingMatch, setSavingMatch] = useState<Record<number, boolean>>({});
   const [gameWeek, setGameWeek] = useState("1");
   const now = Date.now();
   // Mostra jogos que já começaram e ainda não têm resultado, mais os recém-encerrados.
@@ -193,6 +194,7 @@ function ResultsTab({
             </span>
             <input
               type="number"
+              inputMode="numeric"
               min={0}
               value={draft.home}
               onChange={(e) =>
@@ -203,6 +205,7 @@ function ResultsTab({
             <span>×</span>
             <input
               type="number"
+              inputMode="numeric"
               min={0}
               value={draft.away}
               onChange={(e) =>
@@ -214,17 +217,19 @@ function ResultsTab({
               {m.away?.flag} {m.away?.name}
             </span>
             <button
-              onClick={() =>
-                call("/api/admin/results", {
+              onClick={async () => {
+                setSavingMatch((s) => ({ ...s, [m.num]: true }));
+                await call("/api/admin/results", {
                   matchNum: m.num,
                   homeScore: parseInt(draft.home, 10),
                   awayScore: parseInt(draft.away, 10),
-                })
-              }
-              disabled={draft.home === "" || draft.away === ""}
-              className="rounded-lg bg-pitch px-3 py-2 font-bold text-white hover:bg-pitch-dark transition disabled:opacity-40"
+                });
+                setSavingMatch((s) => ({ ...s, [m.num]: false }));
+              }}
+              disabled={draft.home === "" || draft.away === "" || savingMatch[m.num]}
+              className="rounded-lg bg-pitch px-3 py-2 font-bold text-white hover:bg-pitch-dark transition disabled:opacity-40 min-w-[70px]"
             >
-              Salvar
+              {savingMatch[m.num] ? "…" : "Salvar"}
             </button>
             {m.status === "finished" && (
               <button
@@ -331,6 +336,7 @@ function PeopleTab({
   const [avatar, setAvatar] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [resetPins, setResetPins] = useState<Record<number, string>>({});
+  const [confirmReset, setConfirmReset] = useState<Record<number, boolean>>({});
 
   return (
     <div className="space-y-6">
@@ -401,19 +407,34 @@ function PeopleTab({
               }
               className="w-24 rounded-lg border border-foreground/20 px-3 py-1.5 text-center"
             />
-            <button
-              onClick={() =>
-                call(
-                  "/api/admin/participants",
-                  { participantId: p.id, pin: resetPins[p.id] },
-                  "PUT"
-                )
-              }
-              disabled={(resetPins[p.id] ?? "").length !== 4}
-              className="rounded-lg bg-foreground/10 px-3 py-1.5 font-bold hover:bg-foreground/20 transition disabled:opacity-40"
-            >
-              Resetar PIN
-            </button>
+            {confirmReset[p.id] ? (
+              <span className="flex items-center gap-1.5">
+                <span className="text-xs text-red-600 font-bold">Confirmar?</span>
+                <button
+                  onClick={() => {
+                    call("/api/admin/participants", { participantId: p.id, pin: resetPins[p.id] }, "PUT");
+                    setConfirmReset((c) => ({ ...c, [p.id]: false }));
+                  }}
+                  className="rounded-lg bg-red-500 px-3 py-1.5 text-sm font-bold text-white hover:bg-red-600 transition"
+                >
+                  Sim
+                </button>
+                <button
+                  onClick={() => setConfirmReset((c) => ({ ...c, [p.id]: false }))}
+                  className="rounded-lg bg-foreground/10 px-3 py-1.5 text-sm font-bold hover:bg-foreground/20 transition"
+                >
+                  Não
+                </button>
+              </span>
+            ) : (
+              <button
+                onClick={() => setConfirmReset((c) => ({ ...c, [p.id]: true }))}
+                disabled={(resetPins[p.id] ?? "").length !== 4}
+                className="rounded-lg bg-foreground/10 px-3 py-1.5 font-bold hover:bg-foreground/20 transition disabled:opacity-40"
+              >
+                Resetar PIN
+              </button>
+            )}
           </div>
         ))}
       </section>

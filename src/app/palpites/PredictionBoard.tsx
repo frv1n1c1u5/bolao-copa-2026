@@ -42,10 +42,21 @@ export function PredictionBoard({
   const [onlyPending, setOnlyPending] = useState(false);
   const now = Date.now();
 
+  const groups = useMemo(() => {
+    const gs = new Set<string>();
+    for (const m of matches) if (m.group) gs.add(m.group);
+    return [...gs].sort();
+  }, [matches]);
+
   const visible = useMemo(
     () =>
       matches.filter((m) => {
-        if (stageFilter !== "all" && m.stage !== stageFilter) return false;
+        if (stageFilter.startsWith("group-")) {
+          const g = stageFilter.slice(6);
+          if (m.stage !== "group" || m.group !== g) return false;
+        } else if (stageFilter !== "all" && m.stage !== stageFilter) {
+          return false;
+        }
         if (onlyPending) {
           const started = new Date(m.kickoff).getTime() <= now;
           if (started || preds[m.num]) return false;
@@ -54,6 +65,16 @@ export function PredictionBoard({
       }),
     [matches, stageFilter, onlyPending, preds, now]
   );
+
+  const totalPalpitable = useMemo(
+    () => matches.filter((m) => m.home && m.away).length,
+    [matches]
+  );
+  const totalDone = useMemo(
+    () => matches.filter((m) => m.home && m.away && preds[m.num] !== undefined).length,
+    [matches, preds]
+  );
+  const progressPct = totalPalpitable > 0 ? Math.round((totalDone / totalPalpitable) * 100) : 0;
 
   const byDay = useMemo(() => {
     const groups = new Map<string, MatchView[]>();
@@ -94,6 +115,25 @@ export function PredictionBoard({
 
   return (
     <div>
+      {totalPalpitable > 0 && (
+        <div className="mb-4">
+          <div className="flex justify-between text-xs text-foreground/60 mb-1">
+            <span>Palpites feitos</span>
+            <span className="font-bold">
+              {totalDone} / {totalPalpitable}
+            </span>
+          </div>
+          <div className="h-2 rounded-full bg-foreground/10 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                progressPct === 100 ? "bg-pitch" : "bg-gold"
+              }`}
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <select
           value={stageFilter}
@@ -101,11 +141,22 @@ export function PredictionBoard({
           className="rounded-lg border border-foreground/20 bg-white px-3 py-2 text-sm"
         >
           <option value="all">Todas as fases</option>
-          {STAGE_ORDER.map((s) => (
-            <option key={s} value={s}>
-              {STAGE_LABELS[s]}
-            </option>
-          ))}
+          {groups.length > 0 && (
+            <optgroup label="Fase de Grupos">
+              {groups.map((g) => (
+                <option key={`group-${g}`} value={`group-${g}`}>
+                  Grupo {g}
+                </option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label="Mata-mata">
+            {STAGE_ORDER.filter((s) => s !== "group").map((s) => (
+              <option key={s} value={s}>
+                {STAGE_LABELS[s]}
+              </option>
+            ))}
+          </optgroup>
         </select>
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -174,6 +225,7 @@ export function PredictionBoard({
                       <span className="flex items-center gap-1">
                         <input
                           type="number"
+                          inputMode="numeric"
                           min={0}
                           max={99}
                           value={draft.home}
@@ -189,6 +241,7 @@ export function PredictionBoard({
                         <span className="text-foreground/40">×</span>
                         <input
                           type="number"
+                          inputMode="numeric"
                           min={0}
                           max={99}
                           value={draft.away}

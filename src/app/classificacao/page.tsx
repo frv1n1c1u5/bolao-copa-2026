@@ -95,6 +95,7 @@ export default async function ClassificacaoPage() {
                   <tr
                     key={s.participantId}
                     className={`border-b border-foreground/5 ${isMe ? "bg-gold/10" : ""}`}
+                    style={isMe ? { boxShadow: "inset 3px 0 0 var(--pitch)" } : undefined}
                   >
                     <td className="px-4 py-3 font-black">{medal(s.rank)}</td>
                     <td className="px-4 py-3">

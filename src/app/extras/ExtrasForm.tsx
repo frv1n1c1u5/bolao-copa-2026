@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ZEBRA_TEAMS } from "@/lib/zebra";
+import { toast } from "@/lib/toast";
 
 interface Team {
   code: string;
@@ -29,30 +30,35 @@ export function ExtrasForm({
 }) {
   const [champion, setChampion] = useState(championPick ?? "");
   const [values, setValues] = useState(extras);
-  const [status, setStatus] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
   const teamByCode = new Map(teams.map((t) => [t.code, t]));
 
   async function saveChampion(code: string) {
     setChampion(code);
-    setStatus((s) => ({ ...s, champion: "salvando…" }));
+    setSaving((s) => ({ ...s, champion: true }));
     const res = await fetch("/api/extras", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "champion", teamCode: code }),
     });
-    setStatus((s) => ({ ...s, champion: res.ok ? "✓ salvo" : "erro ao salvar" }));
+    setSaving((s) => ({ ...s, champion: false }));
+    const team = teamByCode.get(code);
+    if (res.ok) toast(`✓ Campeão salvo: ${team?.flag ?? ""} ${team?.name ?? code}`);
+    else toast("Erro ao salvar campeão", "error");
   }
 
   async function saveExtra(category: string) {
     const value = values[category];
     if (!value?.trim()) return;
-    setStatus((s) => ({ ...s, [category]: "salvando…" }));
+    setSaving((s) => ({ ...s, [category]: true }));
     const res = await fetch("/api/extras", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "extra", category, value }),
     });
-    setStatus((s) => ({ ...s, [category]: res.ok ? "✓ salvo" : "erro ao salvar" }));
+    setSaving((s) => ({ ...s, [category]: false }));
+    if (res.ok) toast("✓ Salvo");
+    else toast("Erro ao salvar", "error");
   }
 
   return (
@@ -67,7 +73,7 @@ export function ExtrasForm({
         <div className="flex items-center gap-3">
           <select
             value={champion}
-            disabled={championLocked}
+            disabled={championLocked || saving.champion}
             onChange={(e) => saveChampion(e.target.value)}
             className="flex-1 rounded-lg border border-foreground/20 bg-white px-3 py-2 disabled:opacity-60"
           >
@@ -78,7 +84,7 @@ export function ExtrasForm({
               </option>
             ))}
           </select>
-          <span className="text-xs text-pitch font-bold w-20">{status.champion}</span>
+          {saving.champion && <span className="text-xs text-foreground/50">salvando…</span>}
         </div>
       </section>
 
@@ -93,7 +99,7 @@ export function ExtrasForm({
               <input
                 type="text"
                 value={values[f.category] ?? ""}
-                disabled={extrasLocked}
+                disabled={extrasLocked || saving[f.category]}
                 placeholder={f.placeholder}
                 onChange={(e) =>
                   setValues((v) => ({ ...v, [f.category]: e.target.value }))
@@ -101,7 +107,7 @@ export function ExtrasForm({
                 onBlur={() => saveExtra(f.category)}
                 className="flex-1 rounded-lg border border-foreground/20 px-3 py-2 disabled:opacity-60"
               />
-              <span className="text-xs text-pitch font-bold w-20">{status[f.category]}</span>
+              {saving[f.category] && <span className="text-xs text-foreground/50 w-16">salvando…</span>}
             </div>
           </div>
         ))}
@@ -118,19 +124,22 @@ export function ExtrasForm({
           <div className="flex items-center gap-3">
             <select
               value={values["zebra"] ?? ""}
-              disabled={extrasLocked}
+              disabled={extrasLocked || saving["zebra"]}
               onChange={(e) => {
                 const code = e.target.value;
                 setValues((v) => ({ ...v, zebra: code }));
                 if (code) {
-                  setStatus((s) => ({ ...s, zebra: "salvando…" }));
+                  setSaving((s) => ({ ...s, zebra: true }));
+                  const team = teamByCode.get(code);
                   fetch("/api/extras", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ type: "extra", category: "zebra", value: code }),
-                  }).then((r) =>
-                    setStatus((s) => ({ ...s, zebra: r.ok ? "✓ salvo" : "erro" }))
-                  );
+                  }).then((r) => {
+                    setSaving((s) => ({ ...s, zebra: false }));
+                    if (r.ok) toast(`✓ Zebra salva: ${team?.flag ?? ""} ${team?.name ?? code}`);
+                    else toast("Erro ao salvar zebra", "error");
+                  });
                 }
               }}
               className="flex-1 rounded-lg border border-foreground/20 bg-white px-3 py-2 disabled:opacity-60"
@@ -145,7 +154,7 @@ export function ExtrasForm({
                 );
               })}
             </select>
-            <span className="text-xs text-pitch font-bold w-20">{status["zebra"]}</span>
+            {saving["zebra"] && <span className="text-xs text-foreground/50">salvando…</span>}
           </div>
           {values["zebra"] && (() => {
             const t = teamByCode.get(values["zebra"]);

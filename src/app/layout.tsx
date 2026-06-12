@@ -4,7 +4,14 @@ import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { LogoutButton } from "@/components/LogoutButton";
 import { getCurrentPhase } from "@/lib/format";
+import { Toaster } from "@/components/Toaster";
 import "./globals.css";
+
+const PHASE_COLORS = {
+  grupos: "#0a7e3d",
+  matamata: "#1a3a5c",
+  final: "#a07000",
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +52,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased theme-${phase}`}>
       <head>
-        <meta name="theme-color" content="#0a7e3d" />
+        <meta name="theme-color" content={PHASE_COLORS[phase]} />
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <header className="bg-pitch text-white shadow-md">
@@ -88,6 +95,7 @@ export default async function RootLayout({
           </div>
         </header>
         <main className="mx-auto w-full max-w-5xl px-4 py-6 flex-1">{children}</main>
+        <Toaster />
         <footer className="mx-auto w-full max-w-5xl px-4 py-8 text-center text-xs text-foreground/50">
           Bolão da família — Copa do Mundo 2026 🏆 Que os palpites estejam inspirados!
         </footer>
