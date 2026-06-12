@@ -5,8 +5,13 @@ import { useEffect, useState } from "react";
 type Status = "unsupported" | "denied" | "subscribed" | "unsubscribed" | "loading";
 
 
+// Sem VAPID key configurada: botão fica oculto até as notificações serem ativadas
+const VAPID_CONFIGURED = !!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+
 export function PushButton() {
   const [status, setStatus] = useState<Status>("loading");
+
+  if (!VAPID_CONFIGURED) return null;
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
