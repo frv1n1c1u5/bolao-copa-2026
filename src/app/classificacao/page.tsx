@@ -87,15 +87,15 @@ export default async function ClassificacaoPage() {
                 </div>
               )}
               <div
-                className={`surface-card rounded-[1.5rem] p-4 ${
+                className={`surface-card rounded-[1.35rem] p-3.5 ${
                   isMe ? "ring-2 ring-gold/45 bg-gold/10" : ""
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-10 text-center text-2xl font-black">{medal(s.rank)}</div>
+                  <div className="w-9 pt-0.5 text-center text-xl font-black">{medal(s.rank)}</div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-black">
+                      <span className="truncate font-black">
                         {s.avatar} {s.name}
                       </span>
                       {isMe && <span className="text-xs font-bold text-pitch">(você)</span>}
@@ -105,7 +105,7 @@ export default async function ClassificacaoPage() {
                         {[...myBadges.entries()].map(([type, count]) => {
                           const meta = BADGE_META[type];
                           return (
-                            <span key={type} className="rounded-full bg-foreground/6 px-2 py-1 text-xs">
+                            <span key={type} className="rounded-full bg-foreground/6 px-2 py-0.5 text-[11px]">
                               {meta.icon} {count > 1 ? `×${count}` : meta.label}
                             </span>
                           );
@@ -113,26 +113,26 @@ export default async function ClassificacaoPage() {
                       </div>
                     )}
                     <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                      <div className="rounded-2xl bg-white/72 px-2 py-3 ring-1 ring-black/5">
-                        <div className="text-xl font-black text-pitch-dark">{s.points}</div>
+                      <div className="rounded-xl bg-white/72 px-2 py-2.5 ring-1 ring-black/5">
+                        <div className="text-lg font-black text-pitch-dark">{s.points}</div>
                         <div className="text-[11px] text-foreground/45">pts</div>
                       </div>
-                      <div className="rounded-2xl bg-white/72 px-2 py-3 ring-1 ring-black/5">
-                        <div className="text-xl font-black">{s.exactCount}</div>
+                      <div className="rounded-xl bg-white/72 px-2 py-2.5 ring-1 ring-black/5">
+                        <div className="text-lg font-black">{s.exactCount}</div>
                         <div className="text-[11px] text-foreground/45">exatos</div>
                       </div>
-                      <div className="rounded-2xl bg-white/72 px-2 py-3 ring-1 ring-black/5">
-                        <div className="text-xl font-black">{s.resultCount}</div>
+                      <div className="rounded-xl bg-white/72 px-2 py-2.5 ring-1 ring-black/5">
+                        <div className="text-lg font-black">{s.resultCount}</div>
                         <div className="text-[11px] text-foreground/45">resultados</div>
                       </div>
                     </div>
-                    <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+                    <div className="mt-2.5 flex items-center justify-between gap-3 text-xs">
                       <span className="text-foreground/55">Extras: {s.extraPoints}</span>
                       {additionalMax > 0 && (
                         <span className="text-foreground/45">máx {s.points + additionalMax}</span>
                       )}
                     </div>
-                    <div className="mt-2 text-sm">
+                    <div className="mt-1.5 text-xs">
                       <span className="text-foreground/55">Campeão: </span>
                       {pickTeam ? (
                         <span className={s.championHit ? "font-bold text-pitch" : "font-medium"}>
