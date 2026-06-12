@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fundo verde -->
+  <rect width="512" height="512" rx="112" fill="#0a7e3d"/>
+  <!-- Bola de futebol centralizada -->
+  <circle cx="256" cy="256" r="160" fill="white" stroke="#1a1a1a" stroke-width="10"/>
+  <!-- Pentágonos centrais da bola -->
+  <polygon points="256,136 296,166 280,212 232,212 216,166" fill="#1a1a1a"/>
+  <polygon points="256,376 296,346 280,300 232,300 216,346" fill="#1a1a1a"/>
+  <polygon points="136,220 160,196 200,210 204,258 166,278" fill="#1a1a1a"/>
+  <polygon points="376,220 352,196 312,210 308,258 346,278" fill="#1a1a1a"/>
+  <polygon points="156,320 168,280 208,270 232,300 214,338" fill="#1a1a1a"/>
+  <polygon points="356,320 344,280 304,270 280,300 298,338" fill="#1a1a1a"/>
+  <!-- Estrelas decorativas -->
+  <text x="256" y="490" text-anchor="middle" font-size="48" fill="#f5b400">★★★</text>
+</svg>

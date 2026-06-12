@@ -68,14 +68,24 @@ export async function calculateBadges(gameWeek: number, matchNums: number[]) {
     }
   }
 
-  // Zebra Certa: acertou resultado de jogo com grande diferença de favoritismo
-  // Heurística: placar final com time "fora" vencendo (awayScore > homeScore) ou empate (draw) com goleada estranha
+  // Zebra Certa: acertou o resultado de um jogo onde < 33% dos palpiteiros acertaram.
+  // Regra objetiva: se a maioria errou o outcome → jogo foi zebra.
+  // Mínimo de 3 palpites para contar (evita falso positivo em jogos com poucos palpites).
   for (const m of finishedMatches) {
     const result = resultsMap.get(m.num);
     if (!result) continue;
-    const isZebra = result.away > result.home; // visitante ganhou (simplificado)
-    if (!isZebra) continue;
-    for (const pred of preds.filter((p) => p.matchNum === m.num)) {
+    const matchPreds = preds.filter((p) => p.matchNum === m.num);
+    if (matchPreds.length < 3) continue;
+
+    const correctCount = matchPreds.filter(
+      (p) => scorePrediction({ home: p.homeScore, away: p.awayScore }, result) > 0
+    ).length;
+    const hitRate = correctCount / matchPreds.length;
+
+    // Zebra: menos de 33% acertou
+    if (hitRate >= 1 / 3) continue;
+
+    for (const pred of matchPreds) {
       const pts = scorePrediction({ home: pred.homeScore, away: pred.awayScore }, result);
       if (pts > 0) {
         toInsert.push({ participantId: pred.participantId, badgeType: "zebra_certa", gameWeek });

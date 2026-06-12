@@ -12,8 +12,17 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Bolão da Copa 2026",
+  title: "Bolão Copa 2026",
   description: "Bolão da família — Copa do Mundo 2026",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Bolão 2026",
+    statusBarStyle: "black-translucent",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 const NAV = [
@@ -35,6 +44,9 @@ export default async function RootLayout({
   const phase = getCurrentPhase();
   return (
     <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased theme-${phase}`}>
+      <head>
+        <meta name="theme-color" content="#0a7e3d" />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         <header className="bg-pitch text-white shadow-md">
           <div className="mx-auto w-full max-w-5xl px-4 py-3 flex flex-wrap items-center gap-3">
