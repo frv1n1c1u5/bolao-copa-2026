@@ -78,24 +78,24 @@ export function PremiacaoClient({
             )}
           </div>
 
-          <div className="glass-panel rounded-[1.5rem] p-4 text-white">
-            <div className="text-xs uppercase tracking-[0.16em] text-white/58">Pote atual</div>
+          <div className="glass-panel rounded-[1.5rem] p-4 text-foreground">
+            <div className="text-xs uppercase tracking-[0.16em] text-foreground/52">Pote atual</div>
             <div className="mt-2 text-4xl font-black text-gold">R$ {fmt(pote)}</div>
-            <div className="mt-2 text-sm text-white/72">
+            <div className="mt-2 text-sm text-foreground/68">
               {numParticipants} participante{numParticipants !== 1 ? "s" : ""} × R$ {fmt(entrada)}
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="rounded-2xl bg-white/10 px-2 py-3">
-                <div className="font-black text-lg">{PODIUM[0].pct}%</div>
-                <div className="text-white/62">campeão</div>
+              <div className="rounded-2xl bg-white/55 px-2 py-3 ring-1 ring-black/5">
+                <div className="font-black text-lg text-pitch-dark">{PODIUM[0].pct}%</div>
+                <div className="text-foreground/58">campeão</div>
               </div>
-              <div className="rounded-2xl bg-white/10 px-2 py-3">
-                <div className="font-black text-lg">15%</div>
-                <div className="text-white/62">3º lugar</div>
+              <div className="rounded-2xl bg-white/55 px-2 py-3 ring-1 ring-black/5">
+                <div className="font-black text-lg text-pitch-dark">15%</div>
+                <div className="text-foreground/58">3º lugar</div>
               </div>
-              <div className="rounded-2xl bg-white/10 px-2 py-3">
-                <div className="font-black text-lg">15%</div>
-                <div className="text-white/62">bônus</div>
+              <div className="rounded-2xl bg-white/55 px-2 py-3 ring-1 ring-black/5">
+                <div className="font-black text-lg text-pitch-dark">15%</div>
+                <div className="text-foreground/58">bônus</div>
               </div>
             </div>
           </div>

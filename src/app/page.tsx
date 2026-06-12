@@ -54,31 +54,31 @@ export default async function HomePage() {
             </div>
 
             {session ? (
-              <div className="glass-panel min-w-[170px] rounded-2xl px-4 py-3 text-sm text-white">
-                <div className="text-white/65">Sua situação</div>
+              <div className="glass-panel min-w-[170px] rounded-2xl px-4 py-3 text-sm text-foreground">
+                <div className="text-foreground/55">Sua situação</div>
                 <div className="mt-1 text-lg font-black">
                   {me ? `${me.avatar} ${me.rank}º lugar` : "Entrou agora"}
                 </div>
-                <div className="text-xs text-white/70">
+                <div className="text-xs text-foreground/65">
                   {me ? `${me.points} pts até aqui` : "Comece pelos palpites"}
                 </div>
               </div>
             ) : (
-              <div className="glass-panel rounded-2xl px-4 py-3 text-sm text-white">
-                <div className="text-white/65">Acesso rápido</div>
-                <div className="mt-1 font-black">Entre e comece a palpitar</div>
+              <div className="glass-panel rounded-2xl px-4 py-3 text-sm text-foreground">
+                <div className="text-foreground/55">Acesso rápido</div>
+                <div className="mt-1 font-black text-pitch-dark">Entre e comece a palpitar</div>
               </div>
             )}
           </div>
 
           <div className="grid gap-3 md:grid-cols-[1.5fr_1fr]">
-            <div className="glass-panel rounded-3xl p-4">
+            <div className="glass-panel rounded-3xl p-4 text-foreground">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-white/60">
+                  <p className="text-xs uppercase tracking-[0.18em] text-foreground/52">
                     Prioridade agora
                   </p>
-                  <p className="mt-1 text-xl font-black">
+                  <p className="mt-1 text-xl font-black text-pitch-dark">
                     {session
                       ? missing > 0
                         ? `${missing} jogo${missing > 1 ? "s" : ""} perto do apito sem palpite`
@@ -87,9 +87,9 @@ export default async function HomePage() {
                   </p>
                 </div>
                 {leader && (
-                  <div className="hidden rounded-2xl bg-white/10 px-3 py-2 text-right text-xs text-white/80 sm:block">
-                    <div className="uppercase tracking-[0.16em] text-white/55">Líder</div>
-                    <div className="mt-1 font-bold">
+                  <div className="hidden rounded-2xl bg-white/55 px-3 py-2 text-right text-xs text-foreground/75 ring-1 ring-black/5 sm:block">
+                    <div className="uppercase tracking-[0.16em] text-foreground/45">Líder</div>
+                    <div className="mt-1 font-bold text-pitch-dark">
                       {leader.avatar} {leader.name}
                     </div>
                     <div>{leader.points} pts</div>
@@ -97,13 +97,13 @@ export default async function HomePage() {
                 )}
               </div>
 
-              <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/10">
+              <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-black/8">
                 <div
                   className="h-full rounded-full bg-gold transition-all"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-white/72">
+              <div className="mt-2 flex items-center justify-between text-xs text-foreground/62">
                 <span>{completed} palpites completos</span>
                 <span>{progressPct}% do quadro já preenchido</span>
               </div>
@@ -119,7 +119,7 @@ export default async function HomePage() {
                     </Link>
                     <Link
                       href="/meu-desempenho"
-                      className="rounded-full border border-white/18 bg-white/10 px-5 py-2.5 text-sm font-bold transition hover:bg-white/16"
+                      className="rounded-full border border-black/8 bg-white/65 px-5 py-2.5 text-sm font-bold text-pitch-dark transition hover:bg-white/82"
                     >
                       Ver meu desempenho
                     </Link>
@@ -136,25 +136,25 @@ export default async function HomePage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-1">
-              <div className="glass-panel rounded-2xl p-4">
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-white/60">
+              <div className="glass-panel rounded-2xl p-4 text-foreground">
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-foreground/52">
                   Próximos jogos
                 </div>
-                <div className="mt-2 text-2xl font-black">{upcoming.length}</div>
-                <p className="text-sm text-white/72">abertos para acompanhar agora</p>
+                <div className="mt-2 text-2xl font-black text-pitch-dark">{upcoming.length}</div>
+                <p className="text-sm text-foreground/64">abertos para acompanhar agora</p>
               </div>
-              <div className="glass-panel rounded-2xl p-4">
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-white/60">
+              <div className="glass-panel rounded-2xl p-4 text-foreground">
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-foreground/52">
                   Ranking
                 </div>
-                <div className="mt-2 text-2xl font-black">{standings.length}</div>
-                <p className="text-sm text-white/72">participantes na disputa</p>
+                <div className="mt-2 text-2xl font-black text-pitch-dark">{standings.length}</div>
+                <p className="text-sm text-foreground/64">participantes na disputa</p>
               </div>
-              <div className="glass-panel rounded-2xl p-4">
-                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-white/60">
+              <div className="glass-panel rounded-2xl p-4 text-foreground">
+                <div className="text-[11px] font-black uppercase tracking-[0.18em] text-foreground/52">
                   Rodada social
                 </div>
-                <div className="mt-2 text-base font-black">
+                <div className="mt-2 text-base font-black text-pitch-dark">
                   Após o apito, todo mundo pode comparar os palpites.
                 </div>
               </div>
