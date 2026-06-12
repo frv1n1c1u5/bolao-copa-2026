@@ -26,6 +26,12 @@ interface ExtraPick {
   pointsAwarded: number;
 }
 
+interface MatchCoverage {
+  isToday: boolean;
+  missingCount: number;
+  missingPeople: string[];
+}
+
 type Tab = "resultados" | "confrontos" | "participantes" | "extras" | "config";
 
 export function AdminPanel({
@@ -36,6 +42,7 @@ export function AdminPanel({
   championOpen,
   extrasOpen,
   championCode,
+  matchCoverage,
   syncAvailable,
 }: {
   matches: MatchView[];
@@ -45,6 +52,7 @@ export function AdminPanel({
   championOpen: boolean;
   extrasOpen: boolean;
   championCode: string | null;
+  matchCoverage: Record<number, MatchCoverage>;
   syncAvailable: boolean;
 }) {
   const router = useRouter();
@@ -94,7 +102,12 @@ export function AdminPanel({
       </div>
 
       {tab === "resultados" && (
-        <ResultsTab matches={matches} call={call} syncAvailable={syncAvailable} />
+        <ResultsTab
+          matches={matches}
+          matchCoverage={matchCoverage}
+          call={call}
+          syncAvailable={syncAvailable}
+        />
       )}
       {tab === "confrontos" && <MatchupsTab matches={matches} teams={teams} call={call} />}
       {tab === "participantes" && <PeopleTab people={people} call={call} />}
@@ -114,10 +127,12 @@ export function AdminPanel({
 
 function ResultsTab({
   matches,
+  matchCoverage,
   call,
   syncAvailable,
 }: {
   matches: MatchView[];
+  matchCoverage: Record<number, MatchCoverage>;
   call: (url: string, body?: unknown, method?: string) => Promise<boolean>;
   syncAvailable: boolean;
 }) {
@@ -183,8 +198,25 @@ function ResultsTab({
           home: m.homeScore?.toString() ?? "",
           away: m.awayScore?.toString() ?? "",
         };
+        const coverage = matchCoverage[m.num];
+        const hasMissingTodayPredictions = coverage?.isToday && coverage.missingCount > 0;
         return (
-          <div key={m.num} className="rounded-xl bg-white p-4 shadow flex flex-wrap items-center gap-3 text-sm">
+          <div
+            key={m.num}
+            className={`rounded-xl p-4 shadow flex flex-wrap items-center gap-3 text-sm ${
+              hasMissingTodayPredictions ? "bg-amber-50 ring-2 ring-amber-300" : "bg-white"
+            }`}
+          >
+            {hasMissingTodayPredictions && (
+              <div className="w-full rounded-lg bg-amber-100 px-3 py-2 text-xs text-amber-900">
+                <div className="font-black">
+                  Atenção: {coverage.missingCount} participante{coverage.missingCount > 1 ? "s" : ""} ainda sem palpite para o jogo de hoje.
+                </div>
+                <div className="mt-1 text-amber-800/90">
+                  {coverage.missingPeople.join(" • ")}
+                </div>
+              </div>
+            )}
             <span className="text-xs text-foreground/50 w-32">
               Jogo {m.num} · {STAGE_LABELS[m.stage]}
               <br />
