@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { getCurrentPhase } from "@/lib/format";
@@ -15,11 +14,6 @@ const PHASE_COLORS = {
   final: "#a07000",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "Bolão Copa 2026",
   description: "Bolão da família — Copa do Mundo 2026",
@@ -34,7 +28,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -42,27 +35,31 @@ export default async function RootLayout({
 }>) {
   const session = await getSession();
   const phase = getCurrentPhase();
+
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased theme-${phase}`}>
+    <html lang="pt-BR" className={`h-full antialiased theme-${phase}`}>
       <head>
         <meta name="theme-color" content={PHASE_COLORS[phase]} />
       </head>
       <body className="min-h-full flex flex-col font-sans">
-        <header className="bg-pitch text-white shadow-md">
-          <div className="mx-auto w-full max-w-5xl px-4 py-3 flex items-center gap-3">
-            <Link href="/" className="text-xl font-black tracking-tight shrink-0">
-              ⚽ Bolão da Copa <span className="text-gold">2026</span>
-            </Link>
-            <NavMenu userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
-          </div>
-        </header>
-        {/* pb-20 reserva espaço para o tab bar no mobile */}
-        <main className="mx-auto w-full max-w-5xl px-4 py-6 flex-1 pb-20 md:pb-6">{children}</main>
-        <Toaster />
-        <footer className="hidden md:block mx-auto w-full max-w-5xl px-4 py-8 text-center text-xs text-foreground/50">
-          Bolão da família — Copa do Mundo 2026 🏆 Que os palpites estejam inspirados!
-        </footer>
-        <MobileTabBar userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
+        <div className="app-shell min-h-full flex flex-col">
+          <header className="sticky top-0 z-30 border-b border-white/10 bg-[color:var(--header-bg)]/92 text-white shadow-md backdrop-blur">
+            <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-3">
+              <Link href="/" className="shrink-0 text-lg font-black tracking-tight sm:text-xl">
+                ⚽ Bolão da Copa <span className="text-gold">2026</span>
+              </Link>
+              <NavMenu userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
+            </div>
+          </header>
+          <main className="mx-auto flex-1 w-full max-w-5xl px-4 py-5 pb-24 md:py-6 md:pb-6">
+            {children}
+          </main>
+          <Toaster />
+          <footer className="hidden md:block mx-auto w-full max-w-5xl px-4 py-8 text-center text-xs text-foreground/50">
+            Bolão da família — Copa do Mundo 2026 🏆 Que os palpites estejam inspirados!
+          </footer>
+          <MobileTabBar userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
+        </div>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { badges, predictions, matches } from "@/db/schema";
-import { eq, and, gte, lt, inArray } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { scorePrediction, EXACT_POINTS } from "./scoring";
 
 export const BADGE_META: Record<string, { icon: string; label: string; desc: string }> = {

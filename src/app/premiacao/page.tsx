@@ -17,11 +17,13 @@ export default async function PremiacaoPage() {
   const savedEntrada = parseFloat(settingsMap.get("valor_entrada") ?? "50");
 
   return (
-    <div>
-      <h1 className="text-2xl font-black mb-1">🏅 Premiação</h1>
-      <p className="text-sm text-foreground/60 mb-6">
-        Distribuição do pote entre os campeões do bolão.
-      </p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-black mb-1">🏅 Premiação</h1>
+        <p className="text-sm text-foreground/60">
+          Distribuição do pote entre os campeões do bolão.
+        </p>
+      </div>
       <PremiacaoClient
         numParticipants={parts.length}
         isAdmin={session?.isAdmin ?? false}

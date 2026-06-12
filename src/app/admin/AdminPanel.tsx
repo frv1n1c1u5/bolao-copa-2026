@@ -125,6 +125,7 @@ function ResultsTab({
   const [syncing, setSyncing] = useState(false);
   const [savingMatch, setSavingMatch] = useState<Record<number, boolean>>({});
   const [gameWeek, setGameWeek] = useState("1");
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   // Mostra jogos que já começaram e ainda não têm resultado, mais os recém-encerrados.
   const editable = matches

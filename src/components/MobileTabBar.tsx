@@ -36,72 +36,66 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
 
   return (
     <>
-      {/* Tab bar */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-pitch border-t border-white/10"
+        className="fixed inset-x-0 bottom-0 z-40 md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <div className="flex items-stretch">
-          {PRIMARY.map((tab) => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors ${
-                active(tab.href) ? "text-gold" : "text-white/60 hover:text-white"
+        <div className="mx-3 mb-3 rounded-[1.6rem] border border-white/12 bg-[color:var(--header-bg)]/94 px-2 py-2 shadow-[0_18px_45px_rgba(0,0,0,0.28)] backdrop-blur">
+          <div className="flex items-stretch">
+            {PRIMARY.map((tab) => {
+              const isActive = active(tab.href);
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`flex-1 rounded-2xl px-1 py-2 text-center transition ${
+                    isActive ? "bg-white/12 text-gold" : "text-white/62"
+                  }`}
+                >
+                  <span className="block text-[20px] leading-none">{tab.icon}</span>
+                  <span className="mt-1 block text-[10px] font-semibold">{tab.label}</span>
+                </Link>
+              );
+            })}
+
+            <button
+              onClick={() => setOpen(true)}
+              className={`flex-1 rounded-2xl px-1 py-2 text-center transition ${
+                moreIsActive || open ? "bg-white/12 text-gold" : "text-white/62"
               }`}
             >
-              <span className="text-[20px] leading-none">{tab.icon}</span>
-              <span>{tab.label}</span>
-            </Link>
-          ))}
-
-          {/* Mais */}
-          <button
-            onClick={() => setOpen(true)}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors ${
-              moreIsActive || open ? "text-gold" : "text-white/60 hover:text-white"
-            }`}
-          >
-            <span className="text-[20px] leading-none">⋯</span>
-            <span>Mais</span>
-          </button>
+              <span className="block text-[20px] leading-none">⋯</span>
+              <span className="mt-1 block text-[10px] font-semibold">Mais</span>
+            </button>
+          </div>
         </div>
       </nav>
 
-      {/* Sheet "Mais" */}
       {open && (
         <>
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 z-50 md:hidden bg-black/50"
-            onClick={() => setOpen(false)}
-          />
+          <div className="fixed inset-0 z-50 bg-black/55 md:hidden" onClick={() => setOpen(false)} />
 
-          {/* Painel de baixo pra cima */}
           <div
-            className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-pitch rounded-t-2xl shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-[1.75rem] bg-[color:var(--header-bg)] px-3 pt-3 shadow-2xl"
             style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
           >
-            {/* Alça */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full bg-white/25" />
+            <div className="flex justify-center pb-3">
+              <div className="h-1 w-10 rounded-full bg-white/28" />
             </div>
 
-            <nav className="flex flex-col gap-0.5 px-3 pb-2">
+            <nav className="flex flex-col gap-1 pb-2">
               {MORE.filter((l) => !l.auth || userName).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
-                    active(link.href) ? "bg-white/15" : "hover:bg-white/10"
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 transition ${
+                    active(link.href) ? "bg-white/14" : "hover:bg-white/10"
                   }`}
                 >
-                  <span className="text-xl w-7 text-center leading-none">{link.icon}</span>
-                  <span className="text-white font-medium">{link.label}</span>
-                  {active(link.href) && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-gold" />
-                  )}
+                  <span className="w-7 text-center text-xl leading-none">{link.icon}</span>
+                  <span className="font-medium text-white">{link.label}</span>
+                  {active(link.href) && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-gold" />}
                 </Link>
               ))}
 
@@ -109,24 +103,23 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
                 <Link
                   href="/admin"
                   onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition mt-1 ${
-                    pathname.startsWith("/admin") ? "bg-white/15" : "hover:bg-white/10"
+                  className={`mt-1 flex items-center gap-3 rounded-2xl px-4 py-3 transition ${
+                    pathname.startsWith("/admin") ? "bg-white/14" : "hover:bg-white/10"
                   }`}
                 >
-                  <span className="text-xl w-7 text-center leading-none">⚙️</span>
-                  <span className="text-gold font-bold">Admin</span>
+                  <span className="w-7 text-center text-xl leading-none">⚙️</span>
+                  <span className="font-bold text-gold">Admin</span>
                 </Link>
               )}
             </nav>
 
-            {/* Rodapé: usuário + logout */}
-            <div className="px-4 pt-2 pb-4 border-t border-white/10">
+            <div className="border-t border-white/10 px-1 pb-4 pt-3">
               {userName ? (
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <Link
                     href="/meu-desempenho"
                     onClick={() => setOpen(false)}
-                    className="text-gold font-bold hover:underline"
+                    className="truncate font-bold text-gold hover:underline"
                   >
                     {userName}
                   </Link>
@@ -136,7 +129,7 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="block text-center px-4 py-2.5 rounded-xl bg-gold text-pitch-dark font-bold hover:brightness-110 transition"
+                  className="block rounded-xl bg-gold px-4 py-2.5 text-center font-bold text-pitch-dark transition hover:brightness-110"
                 >
                   Entrar
                 </Link>

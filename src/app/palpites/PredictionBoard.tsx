@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatDay, formatTime, dayKey, STAGE_LABELS, STAGE_ORDER } from "@/lib/format";
 import { CountdownBadge } from "@/components/CountdownBadge";
@@ -40,7 +40,12 @@ export function PredictionBoard({
   const [saving, setSaving] = useState<Record<number, "saving" | "saved" | "error">>({});
   const [stageFilter, setStageFilter] = useState<string>("all");
   const [onlyPending, setOnlyPending] = useState(false);
-  const now = Date.now();
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const groups = useMemo(() => {
     const gs = new Set<string>();

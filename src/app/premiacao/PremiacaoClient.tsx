@@ -48,124 +48,165 @@ export function PremiacaoClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Pote total */}
-      <div className="rounded-xl bg-white shadow p-6">
-        <h2 className="font-black text-xl mb-1">💰 Pote Total</h2>
-        <p className="text-sm text-foreground/60 mb-4">
-          {numParticipants} participante{numParticipants !== 1 ? "s" : ""} × R$ {fmt(entrada)}
-        </p>
+    <div className="space-y-5 md:space-y-6">
+      <section className="hero-panel rounded-[1.75rem] p-5 text-white md:p-6">
+        <div className="relative z-10 grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <span className="inline-flex rounded-full border border-white/14 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-white/78">
+              Pote + distribuição
+            </span>
+            <h2 className="mt-3 text-3xl font-black leading-none">Premiação pronta para o celular</h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/74">
+              O valor principal aparece primeiro, depois a divisão em blocos curtos e fáceis de
+              conferir no grupo da família.
+            </p>
 
-        {isAdmin && (
-          <label className="flex items-center gap-3 mb-4 text-sm font-bold">
-            Valor de entrada:
-            <input
-              type="number"
-              min={0}
-              step={5}
-              value={entrada}
-              onChange={(e) => setEntrada(Number(e.target.value))}
-              onBlur={() => saveEntrada(entrada)}
-              className="w-28 rounded-lg border border-foreground/20 px-3 py-1.5 text-right"
-            />
-            {saving && <span className="text-xs text-pitch">salvando…</span>}
-          </label>
-        )}
-
-        <div className="text-5xl font-black text-pitch">
-          R$ {fmt(pote)}
-        </div>
-      </div>
-
-      {/* Pódio — top 3 */}
-      <div>
-        <h2 className="font-black text-lg mb-3">🏆 Distribuição dos prêmios</h2>
-
-        {/* Pódio visual: 2º | 1º | 3º */}
-        <div className="flex items-end justify-center gap-3 mb-4">
-          {/* 2º lugar */}
-          <div className="flex flex-col items-center flex-1">
-            <span className="text-3xl mb-1">{PODIUM[1].icon}</span>
-            <div className="rounded-xl bg-white shadow p-4 text-center w-full border-t-4 border-foreground/20">
-              <p className="font-black text-sm">{PODIUM[1].label}</p>
-              <p className="text-foreground/50 text-xs">{PODIUM[1].pct}%</p>
-              <p className="font-black text-pitch-dark text-lg mt-1">
-                R$ {fmt((pote * PODIUM[1].pct) / 100)}
-              </p>
-            </div>
-            <div className="h-12 w-full bg-foreground/10 rounded-b-lg" />
+            {isAdmin && (
+              <label className="mt-4 inline-flex flex-wrap items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 text-sm font-bold">
+                Valor de entrada
+                <input
+                  type="number"
+                  min={0}
+                  step={5}
+                  value={entrada}
+                  onChange={(e) => setEntrada(Number(e.target.value))}
+                  onBlur={() => saveEntrada(entrada)}
+                  className="w-28 rounded-xl border border-white/15 bg-white px-3 py-2 text-right text-pitch-dark outline-none"
+                />
+                {saving && <span className="text-xs text-gold">salvando…</span>}
+              </label>
+            )}
           </div>
 
-          {/* 1º lugar — mais alto */}
-          <div className="flex flex-col items-center flex-1 -mb-4">
-            <span className="text-4xl mb-1">{PODIUM[0].icon}</span>
-            <div className="rounded-xl bg-pitch shadow-lg p-4 text-center w-full border-t-4 border-gold text-white">
-              <p className="font-black">{PODIUM[0].label}</p>
-              <p className="text-white/60 text-xs">{PODIUM[0].pct}%</p>
-              <p className="font-black text-gold text-xl mt-1">
-                R$ {fmt((pote * PODIUM[0].pct) / 100)}
-              </p>
+          <div className="glass-panel rounded-[1.5rem] p-4 text-white">
+            <div className="text-xs uppercase tracking-[0.16em] text-white/58">Pote atual</div>
+            <div className="mt-2 text-4xl font-black text-gold">R$ {fmt(pote)}</div>
+            <div className="mt-2 text-sm text-white/72">
+              {numParticipants} participante{numParticipants !== 1 ? "s" : ""} × R$ {fmt(entrada)}
             </div>
-            <div className="h-20 w-full bg-pitch/20 rounded-b-lg" />
-          </div>
-
-          {/* 3º lugar */}
-          <div className="flex flex-col items-center flex-1">
-            <span className="text-3xl mb-1">{PODIUM[2].icon}</span>
-            <div className="rounded-xl bg-white shadow p-4 text-center w-full border-t-4 border-foreground/10">
-              <p className="font-black text-sm">{PODIUM[2].label}</p>
-              <p className="text-foreground/50 text-xs">{PODIUM[2].pct}%</p>
-              <p className="font-black text-pitch-dark text-lg mt-1">
-                R$ {fmt((pote * PODIUM[2].pct) / 100)}
-              </p>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="rounded-2xl bg-white/10 px-2 py-3">
+                <div className="font-black text-lg">{PODIUM[0].pct}%</div>
+                <div className="text-white/62">campeão</div>
+              </div>
+              <div className="rounded-2xl bg-white/10 px-2 py-3">
+                <div className="font-black text-lg">15%</div>
+                <div className="text-white/62">3º lugar</div>
+              </div>
+              <div className="rounded-2xl bg-white/10 px-2 py-3">
+                <div className="font-black text-lg">15%</div>
+                <div className="text-white/62">bônus</div>
+              </div>
             </div>
-            <div className="h-8 w-full bg-foreground/5 rounded-b-lg" />
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Bônus extras */}
-      <div className="rounded-xl bg-white shadow overflow-hidden">
-        <div className="px-4 py-3 bg-foreground/5 border-b border-foreground/10">
-          <h3 className="font-black text-sm">⭐ Prêmios bônus</h3>
+      <section className="surface-card rounded-[1.5rem] p-4 md:p-5">
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Pódio enxuto</span>
+            <h3 className="mt-2 text-xl font-black">Distribuição principal</h3>
+          </div>
+          <span className="text-xs text-foreground/45">layout otimizado para leitura vertical</span>
         </div>
-        {BONUSES.map((p) => {
-          const valor = (pote * p.pct) / 100;
-          return (
+
+        <div className="grid gap-3 md:grid-cols-3">
+          {PODIUM.map((prize, index) => {
+            const destaque = index === 0;
+            return (
+              <div
+                key={prize.label}
+                className={`rounded-[1.5rem] p-4 ${
+                  destaque
+                    ? "bg-[color:var(--header-bg)] text-white shadow-lg"
+                    : "bg-white/72 ring-1 ring-black/5"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-3xl">{prize.icon}</div>
+                  <div
+                    className={`rounded-full px-2.5 py-1 text-xs font-black ${
+                      destaque ? "bg-gold text-pitch-dark" : "bg-foreground/8 text-foreground/60"
+                    }`}
+                  >
+                    {prize.pct}%
+                  </div>
+                </div>
+                <div className={`mt-4 text-sm font-black ${destaque ? "text-gold" : "text-pitch-dark"}`}>
+                  {prize.label}
+                </div>
+                <div className={`mt-1 text-2xl font-black ${destaque ? "text-white" : "text-foreground"}`}>
+                  R$ {fmt((pote * prize.pct) / 100)}
+                </div>
+                <p className={`mt-2 text-xs ${destaque ? "text-white/70" : "text-foreground/55"}`}>
+                  {index === 0
+                    ? "Maior fatia do pote, destacada no topo."
+                    : index === 1
+                    ? "Ainda leva uma parcela relevante da disputa."
+                    : "Fecha o pódio sem virar número escondido."}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="surface-card rounded-[1.5rem] p-4 md:p-5">
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Bônus separados</span>
+            <h3 className="mt-2 text-xl font-black">Prêmios extras</h3>
+          </div>
+          <span className="text-xs text-foreground/45">todos com a mesma fatia</span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          {BONUSES.map((p) => {
+            const valor = (pote * p.pct) / 100;
+            return (
+              <div key={p.label} className="rounded-[1.35rem] bg-white/72 p-4 ring-1 ring-black/5">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-2xl">{p.icon}</span>
+                  <span className="rounded-full bg-gold/18 px-2.5 py-1 text-xs font-black text-pitch-dark">
+                    {p.pct}%
+                  </span>
+                </div>
+                <div className="mt-3 text-sm font-black">{p.label}</div>
+                <div className="mt-1 text-xl font-black text-pitch-dark">R$ {fmt(valor)}</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 rounded-[1.35rem] bg-gold/12 px-4 py-3 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-black">Total distribuído</span>
+            <span className="font-black text-pitch-dark">100% • R$ {fmt(pote)}</span>
+          </div>
+        </div>
+      </section>
+
+      <details className="surface-card rounded-[1.35rem] p-4 text-sm">
+        <summary className="cursor-pointer font-bold text-pitch">Ver distribuição completa</summary>
+        <div className="mt-4 space-y-2">
+          {ALL_PRIZES.map((p) => (
             <div
               key={p.label}
-              className="flex items-center gap-3 px-4 py-3 border-b border-foreground/5 last:border-0"
+              className="flex items-center gap-3 rounded-2xl bg-white/70 px-3 py-3 ring-1 ring-black/5"
             >
               <span className="text-xl">{p.icon}</span>
-              <span className="flex-1 font-bold text-sm">{p.label}</span>
-              <span className="text-xs text-foreground/50">{p.pct}%</span>
-              <span className="font-black text-pitch-dark">R$ {fmt(valor)}</span>
-            </div>
-          );
-        })}
-        <div className="flex items-center gap-3 px-4 py-3 bg-gold/10">
-          <span className="flex-1 font-black text-sm">Total distribuído</span>
-          <span className="text-xs text-foreground/50">100%</span>
-          <span className="font-black text-pitch-dark">R$ {fmt(pote)}</span>
-        </div>
-      </div>
-
-      {/* Resumo da distribuição (oculto, mas disponível) */}
-      <details className="text-xs text-foreground/40">
-        <summary className="cursor-pointer hover:text-foreground/60">Ver distribuição completa</summary>
-        <div className="mt-2 space-y-1 pl-2">
-          {ALL_PRIZES.map((p) => (
-            <div key={p.label} className="flex gap-2">
-              <span>{p.icon}</span>
-              <span className="flex-1">{p.label}</span>
-              <span>{p.pct}% = R$ {fmt((pote * p.pct) / 100)}</span>
+              <span className="flex-1 font-medium">{p.label}</span>
+              <span className="text-foreground/55">{p.pct}%</span>
+              <span className="font-black text-pitch-dark">R$ {fmt((pote * p.pct) / 100)}</span>
             </div>
           ))}
         </div>
       </details>
 
-      <p className="text-xs text-foreground/50 text-center">
-        💡 Pagamento feito manualmente fora do app (Pix no grupo da família). Combine o prazo antes da Copa começar!
+      <p className="text-center text-xs text-foreground/55">
+        💡 O pagamento continua manual fora do app. Aqui a ideia é deixar a divisão clara e fácil
+        de conferir no celular.
       </p>
     </div>
   );

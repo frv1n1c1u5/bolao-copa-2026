@@ -4,29 +4,30 @@ import { useEffect, useState } from "react";
 
 type Status = "unsupported" | "denied" | "subscribed" | "unsubscribed" | "loading";
 
-
-// Sem VAPID key configurada: botão fica oculto até as notificações serem ativadas
 const VAPID_CONFIGURED = !!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
 export function PushButton() {
-  const [status, setStatus] = useState<Status>("loading");
-
-  if (!VAPID_CONFIGURED) return null;
+  const [status, setStatus] = useState<Status>(VAPID_CONFIGURED ? "loading" : "unsupported");
 
   useEffect(() => {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setStatus("unsupported");
-      return;
+    if (!VAPID_CONFIGURED) return;
+
+    async function hydrateStatus() {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setStatus("unsupported");
+        return;
+      }
+      if (Notification.permission === "denied") {
+        setStatus("denied");
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      setStatus(sub ? "subscribed" : "unsubscribed");
     }
-    if (Notification.permission === "denied") {
-      setStatus("denied");
-      return;
-    }
-    navigator.serviceWorker.ready.then((reg) =>
-      reg.pushManager.getSubscription().then((sub) => {
-        setStatus(sub ? "subscribed" : "unsubscribed");
-      })
-    );
+
+    hydrateStatus().catch(() => setStatus("unsubscribed"));
   }, []);
 
   async function toggle() {
@@ -47,17 +48,19 @@ export function PushButton() {
         setStatus("denied");
         return;
       }
+
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
         console.warn("NEXT_PUBLIC_VAPID_PUBLIC_KEY não configurada");
         setStatus("unsubscribed");
         return;
       }
-      // Browsers modernos aceitam a string base64url diretamente
+
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: vapidKey,
       });
+
       await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,7 +93,7 @@ export function PushButton() {
     }
   }
 
-  if (status === "unsupported" || status === "denied") return null;
+  if (!VAPID_CONFIGURED || status === "unsupported" || status === "denied") return null;
 
   return (
     <button

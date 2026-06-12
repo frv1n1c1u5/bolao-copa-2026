@@ -31,12 +31,42 @@
   --color-pitch: #0a7e3d;
   --color-pitch-dark: #075c2c;
   --color-gold: #f5b400;
-  --font-sans: var(--font-geist-sans);
+  --color-surface: rgba(255, 255, 255, 0.82);
+  --color-surface-strong: rgba(255, 255, 255, 0.94);
+  --color-line-soft: rgba(20, 36, 26, 0.08);
+  --font-sans: "Segoe UI", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  position: relative;
   background: var(--background);
   color: var(--foreground);
+  background-image:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--header-accent) 16%, transparent), transparent 32%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--header-bg) 14%, transparent), transparent 26%),
+    linear-gradient(180deg, color-mix(in srgb, var(--background) 82%, white) 0%, var(--background) 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(transparent 0 95%, rgba(255, 255, 255, 0.4) 95% 100%),
+    linear-gradient(90deg, transparent 0 95%, rgba(255, 255, 255, 0.2) 95% 100%);
+  background-size: 18px 18px;
+  opacity: 0.15;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+  z-index: -1;
 }
 
 /* Animação estrelas na fase final */
@@ -61,4 +91,76 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 input[type="number"] {
   appearance: textfield;
+}
+
+.app-shell {
+  position: relative;
+}
+
+.glass-panel {
+  background: var(--color-surface);
+  backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--header-bg) 10%, white);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, var(--header-bg) 0%, color-mix(in srgb, var(--header-bg) 72%, #04140a) 100%);
+  box-shadow: 0 24px 50px rgba(10, 34, 22, 0.2);
+}
+
+.hero-panel::before {
+  content: "";
+  position: absolute;
+  inset: auto -8% -32% auto;
+  width: 200px;
+  height: 200px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--header-accent) 82%, white);
+  opacity: 0.14;
+}
+
+.hero-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 42%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 28%);
+  pointer-events: none;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--header-bg) 10%, white);
+  color: color-mix(in srgb, var(--header-bg) 85%, black);
+  padding: 0.32rem 0.72rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.surface-card {
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-line-soft);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+}
+
+.soft-divider {
+  border-color: var(--color-line-soft);
 }
