@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { hasApiKey } from "@/lib/football-api";
 import { syncMatchResults } from "@/lib/sync-matches";
+import { sendMatchReminders } from "@/lib/push-notify";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,9 @@ export async function GET(req: NextRequest) {
 
   try {
     const result = await syncMatchResults();
-    console.log("[cron/sync]", result);
-    return NextResponse.json({ ok: true, ...result });
+    const notified = await sendMatchReminders();
+    console.log("[cron/sync]", result, { notified });
+    return NextResponse.json({ ok: true, ...result, notified });
   } catch (e) {
     console.error("[cron/sync] erro:", e);
     return NextResponse.json(

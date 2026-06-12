@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { LogoutButton } from "./LogoutButton";
+import { PushButton } from "./PushButton";
 
 const NAV = [
   { href: "/", label: "Início" },
@@ -45,7 +46,13 @@ export function NavMenu({ userName, isAdmin }: NavMenuProps) {
         )}
         {userName ? (
           <span className="flex items-center gap-2 pl-2">
-            <span className="text-gold font-bold">{userName}</span>
+            <Link
+              href="/meu-desempenho"
+              className="text-gold font-bold hover:underline transition"
+            >
+              {userName}
+            </Link>
+            <PushButton />
             <LogoutButton />
           </span>
         ) : (
@@ -108,6 +115,15 @@ export function NavMenu({ userName, isAdmin }: NavMenuProps) {
                   {item.label}
                 </Link>
               ))}
+              {userName && (
+                <Link
+                  href="/meu-desempenho"
+                  onClick={() => setOpen(false)}
+                  className="px-4 py-3 rounded-xl text-white font-medium hover:bg-white/10 active:bg-white/20 transition"
+                >
+                  📊 Meu Desempenho
+                </Link>
+              )}
               {isAdmin && (
                 <Link
                   href="/admin"
@@ -120,7 +136,8 @@ export function NavMenu({ userName, isAdmin }: NavMenuProps) {
             </nav>
 
             {/* Rodapé: usuário + logout */}
-            <div className="px-4 pb-6 pt-3 border-t border-white/10">
+            <div className="px-4 pb-6 pt-3 border-t border-white/10 space-y-3">
+              <PushButton />
               {userName ? (
                 <div className="flex items-center justify-between">
                   <span className="text-gold font-bold">{userName}</span>

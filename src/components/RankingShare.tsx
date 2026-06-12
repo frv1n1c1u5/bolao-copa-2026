@@ -14,15 +14,13 @@ export function RankingShare({ standings }: { standings: ParticipantTally[] }) {
     if (!cardRef.current || busy) return;
     setBusy(true);
     try {
-      const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 2 });
+      // skipFonts evita CORS ao tentar baixar Geist; usa system font no card
+      const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 2, skipFonts: true });
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], "ranking-copa-2026.png", { type: "image/png" });
 
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: "Bolão Copa 2026 — Ranking",
-          files: [file],
-        });
+        await navigator.share({ title: "Bolão Copa 2026 — Ranking", files: [file] });
       } else {
         const a = document.createElement("a");
         a.href = dataUrl;
@@ -36,32 +34,61 @@ export function RankingShare({ standings }: { standings: ParticipantTally[] }) {
 
   return (
     <div>
-      {/* Card invisível capturado como PNG */}
-      <div
-        ref={cardRef}
-        style={{ position: "absolute", left: "-9999px", width: 480 }}
-        className="bg-[#0a7e3d] text-white p-6 rounded-2xl font-sans"
-      >
-        <div className="text-center mb-4">
-          <div className="text-3xl mb-1">⚽🏆</div>
-          <div className="text-xl font-black tracking-tight">Bolão Copa 2026</div>
-          <div className="text-sm opacity-70">Família — Classificação atual</div>
-        </div>
-        <div className="space-y-1.5">
-          {standings.slice(0, 10).map((s) => (
-            <div
-              key={s.participantId}
-              className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2"
-            >
-              <span className="w-8 text-center font-black text-yellow-300">{medal(s.rank)}</span>
-              <span className="flex-1 font-bold text-sm">
-                {s.avatar} {s.name}
-              </span>
-              <span className="font-black tabular-nums">{s.points} pts</span>
+      {/* Card renderizado mas oculto — position:fixed+opacity:0 garante que o browser pinte o elemento.
+          Todos os estilos são inline (sem classes Tailwind) para que html-to-image resolva corretamente,
+          pois Tailwind v4 usa oklch() e variáveis CSS que não resolvem no contexto SVG foreignObject. */}
+      <div style={{ position: "fixed", top: 0, left: 0, opacity: 0, pointerEvents: "none", zIndex: -1 }}>
+        <div
+          ref={cardRef}
+          style={{
+            width: 480,
+            background: "#0a7e3d",
+            color: "#ffffff",
+            padding: "24px",
+            borderRadius: "16px",
+            fontFamily: "system-ui, -apple-system, Arial, sans-serif",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "16px" }}>
+            <div style={{ fontSize: "32px", marginBottom: "4px" }}>⚽🏆</div>
+            <div style={{ fontSize: "20px", fontWeight: 900, letterSpacing: "-0.5px" }}>
+              Bolão Copa 2026
             </div>
-          ))}
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginTop: "2px" }}>
+              Família — Classificação atual
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {standings.slice(0, 10).map((s) => (
+              <div
+                key={s.participantId}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: "rgba(255,255,255,0.12)",
+                  borderRadius: "8px",
+                  padding: "8px 12px",
+                }}
+              >
+                <span style={{ width: "28px", textAlign: "center", fontWeight: 900, color: "#fde047" }}>
+                  {medal(s.rank)}
+                </span>
+                <span style={{ flex: 1, fontWeight: 700, fontSize: "14px" }}>
+                  {s.avatar} {s.name}
+                </span>
+                <span style={{ fontWeight: 900, fontVariantNumeric: "tabular-nums" }}>
+                  {s.points} pts
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "12px" }}>
+            bolao-copa-2026.vercel.app
+          </div>
         </div>
-        <div className="text-center text-xs opacity-50 mt-3">bolao-copa-2026.vercel.app</div>
       </div>
 
       <button

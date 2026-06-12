@@ -1,6 +1,7 @@
 import { getStandings, getChampionCode } from "@/lib/queries";
 import { db } from "@/db";
-import { championPicks, teams, badges } from "@/db/schema";
+import { championPicks, teams, badges, matches } from "@/db/schema";
+import { ne } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { BADGE_META } from "@/lib/badges";
 import { RankingShare } from "@/components/RankingShare";
@@ -18,13 +19,23 @@ function tiebreakLabel(curr: ParticipantTally, prev: ParticipantTally): string |
 
 export default async function ClassificacaoPage() {
   const session = await getSession();
-  const [standings, champPicks, allTeams, championCode, allBadges] = await Promise.all([
-    getStandings(),
-    db.select().from(championPicks),
-    db.select().from(teams),
-    getChampionCode(),
-    db.select().from(badges),
-  ]);
+  const [standings, champPicks, allTeams, championCode, allBadges, allMatchStatuses] =
+    await Promise.all([
+      getStandings(),
+      db.select().from(championPicks),
+      db.select().from(teams),
+      getChampionCode(),
+      db.select().from(badges),
+      db
+        .select({ status: matches.status, homeCode: matches.homeCode, awayCode: matches.awayCode })
+        .from(matches)
+        .where(ne(matches.status, "finished")),
+    ]);
+
+  // Jogos ainda não finalizados com os dois times já definidos
+  const unfinishedWithTeams = allMatchStatuses.filter((m) => m.homeCode && m.awayCode).length;
+  // Campeão ainda não definido (resultado não conhecido)
+  const championPending = !championCode;
   const teamByCode = new Map(allTeams.map((t) => [t.code, t]));
   const pickByParticipant = new Map(champPicks.map((c) => [c.participantId, c.teamCode]));
 
@@ -79,6 +90,9 @@ export default async function ClassificacaoPage() {
               const prev = standings[i - 1];
               const tieLabel = prev ? tiebreakLabel(s, prev) : null;
               const myBadges = badgesByParticipant.get(s.participantId);
+              // Pontos extras ainda possíveis: 3 pts por cada jogo restante + 5 pts de campeão se não acertou
+              const additionalMax =
+                unfinishedWithTeams * 3 + (championPending && !s.championHit ? 5 : 0);
 
               return (
                 <>
@@ -125,8 +139,13 @@ export default async function ClassificacaoPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center font-black text-pitch-dark text-base">
-                      {s.points}
+                    <td className="px-4 py-3 text-center">
+                      <div className="font-black text-pitch-dark text-base">{s.points}</div>
+                      {additionalMax > 0 && (
+                        <div className="text-[10px] text-foreground/40 leading-none mt-0.5">
+                          máx {s.points + additionalMax}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center">{s.exactCount}</td>
                     <td className="px-4 py-3 text-center">{s.resultCount}</td>

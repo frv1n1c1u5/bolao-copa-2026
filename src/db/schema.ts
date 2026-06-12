@@ -100,3 +100,15 @@ export const badges = pgTable(
   },
   (t) => [primaryKey({ columns: [t.participantId, t.badgeType, t.gameWeek] })]
 );
+
+// Subscriptions Web Push — uma linha por dispositivo/browser por participante
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: serial("id").primaryKey(),
+  participantId: integer("participant_id")
+    .notNull()
+    .references(() => participants.id),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dhKey: text("p256dh_key").notNull(),
+  authKey: text("auth_key").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
