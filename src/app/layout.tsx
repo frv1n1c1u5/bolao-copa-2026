@@ -6,6 +6,7 @@ import { getCurrentPhase } from "@/lib/format";
 
 import { Toaster } from "@/components/Toaster";
 import { NavMenu } from "@/components/NavMenu";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import "./globals.css";
 
 const PHASE_COLORS = {
@@ -55,11 +56,13 @@ export default async function RootLayout({
             <NavMenu userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
           </div>
         </header>
-        <main className="mx-auto w-full max-w-5xl px-4 py-6 flex-1">{children}</main>
+        {/* pb-20 reserva espaço para o tab bar no mobile */}
+        <main className="mx-auto w-full max-w-5xl px-4 py-6 flex-1 pb-20 md:pb-6">{children}</main>
         <Toaster />
-        <footer className="mx-auto w-full max-w-5xl px-4 py-8 text-center text-xs text-foreground/50">
+        <footer className="hidden md:block mx-auto w-full max-w-5xl px-4 py-8 text-center text-xs text-foreground/50">
           Bolão da família — Copa do Mundo 2026 🏆 Que os palpites estejam inspirados!
         </footer>
+        <MobileTabBar userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
       </body>
     </html>
   );
