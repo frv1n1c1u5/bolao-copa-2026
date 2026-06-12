@@ -15,6 +15,7 @@ export function LoginForm({ people }: { people: Person[] }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +25,7 @@ export function LoginForm({ people }: { people: Person[] }) {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ participantId: selected.id, pin }),
+      body: JSON.stringify({ participantId: selected.id, pin, rememberMe }),
     });
     setLoading(false);
     if (res.ok) {
@@ -72,6 +73,15 @@ export function LoginForm({ people }: { people: Person[] }) {
               className="mt-2 w-full rounded-lg border border-foreground/20 px-4 py-3 text-center text-2xl tracking-[0.5em] focus:border-pitch focus:outline-none"
               placeholder="••••"
             />
+          </label>
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="rounded accent-pitch w-4 h-4"
+            />
+            Lembrar de mim por 90 dias
           </label>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button

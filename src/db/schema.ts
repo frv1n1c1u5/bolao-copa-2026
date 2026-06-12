@@ -86,3 +86,17 @@ export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
 });
+
+// badgeType: vidente | pe_frio | pe_quente | zebra_certa
+export const badges = pgTable(
+  "badges",
+  {
+    participantId: integer("participant_id")
+      .notNull()
+      .references(() => participants.id),
+    badgeType: text("badge_type").notNull(),
+    gameWeek: integer("game_week").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.participantId, t.badgeType, t.gameWeek] })]
+);

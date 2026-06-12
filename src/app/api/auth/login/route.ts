@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { createSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  const { participantId, pin } = await req.json();
+  const { participantId, pin, rememberMe } = await req.json();
   if (typeof participantId !== "number" || typeof pin !== "string") {
     return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
   }
@@ -20,6 +20,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "PIN incorreto" }, { status: 401 });
   }
 
-  await createSession({ id: person.id, name: person.name, isAdmin: person.isAdmin });
+  await createSession({ id: person.id, name: person.name, isAdmin: person.isAdmin }, rememberMe !== false);
   return NextResponse.json({ ok: true });
 }

@@ -15,17 +15,18 @@ export interface Session {
   isAdmin: boolean;
 }
 
-export async function createSession(session: Session) {
+export async function createSession(session: Session, rememberMe = true) {
+  const days = rememberMe ? 90 : 1;
   const token = await new SignJWT({ ...session })
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("60d")
+    .setExpirationTime(`${days}d`)
     .sign(secret());
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 60,
+    ...(rememberMe ? { maxAge: 60 * 60 * 24 * days } : {}),
     path: "/",
   });
 }

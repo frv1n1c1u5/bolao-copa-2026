@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { LogoutButton } from "@/components/LogoutButton";
+import { getCurrentPhase } from "@/lib/format";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/classificacao", label: "Classificação" },
   { href: "/estatisticas", label: "Estatísticas" },
   { href: "/extras", label: "Extras" },
+  { href: "/premiacao", label: "Premiação" },
   { href: "/regras", label: "Regras" },
 ];
 
@@ -30,8 +32,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
+  const phase = getCurrentPhase();
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${geistSans.variable} h-full antialiased theme-${phase}`}>
       <body className="min-h-full flex flex-col font-sans">
         <header className="bg-pitch text-white shadow-md">
           <div className="mx-auto w-full max-w-5xl px-4 py-3 flex flex-wrap items-center gap-3">

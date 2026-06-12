@@ -49,3 +49,16 @@ export const STAGE_LABELS: Record<string, string> = {
 };
 
 export const STAGE_ORDER = ["group", "r32", "r16", "qf", "sf", "third", "final"];
+
+export type Phase = "grupos" | "matamata" | "final";
+
+/** Fase atual baseada na data de hoje. */
+export function getCurrentPhase(now = new Date()): Phase {
+  const t = now.getTime();
+  // Copa 2026: grupos terminam ~2026-06-28, final em 2026-07-19
+  const endGroups = new Date("2026-06-28T23:59:00Z").getTime();
+  const startFinal = new Date("2026-07-19T00:00:00Z").getTime();
+  if (t >= startFinal) return "final";
+  if (t >= endGroups) return "matamata";
+  return "grupos";
+}

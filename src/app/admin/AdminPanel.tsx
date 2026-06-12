@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatKickoff, STAGE_LABELS } from "@/lib/format";
 import type { MatchView } from "@/app/palpites/PredictionBoard";
+import { AvatarPicker } from "@/components/AvatarPicker";
 
 interface Person {
   id: number;
@@ -122,6 +123,7 @@ function ResultsTab({
 }) {
   const [drafts, setDrafts] = useState<Record<number, { home: string; away: string }>>({});
   const [syncing, setSyncing] = useState(false);
+  const [gameWeek, setGameWeek] = useState("1");
   const now = Date.now();
   // Mostra jogos que já começaram e ainda não têm resultado, mais os recém-encerrados.
   const editable = matches
@@ -148,6 +150,27 @@ function ResultsTab({
           Configure FOOTBALL_DATA_API_KEY para habilitar a sincronização automática.
         </p>
       )}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-sm font-bold">Calcular badges da rodada:</span>
+        <input
+          type="number"
+          min={1}
+          value={gameWeek}
+          onChange={(e) => setGameWeek(e.target.value)}
+          className="w-16 rounded-lg border border-foreground/20 px-2 py-1.5 text-center"
+        />
+        <button
+          onClick={() => {
+            const finished = matches
+              .filter((m) => m.status === "finished")
+              .map((m) => m.num);
+            call("/api/admin/badges", { gameWeek: parseInt(gameWeek, 10), matchNums: finished });
+          }}
+          className="rounded-lg bg-foreground/10 px-4 py-1.5 text-sm font-bold hover:bg-foreground/20 transition"
+        >
+          🏅 Calcular badges
+        </button>
+      </div>
       {editable.length === 0 && (
         <p className="rounded-xl bg-white p-6 shadow text-sm">
           Nenhum jogo iniciado aguardando resultado.
@@ -331,15 +354,12 @@ function PeopleTab({
               className="mt-1 block w-24 rounded-lg border border-foreground/20 px-3 py-2 text-center"
             />
           </label>
-          <label className="text-sm font-bold">
-            Emoji
-            <input
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              placeholder="⚽"
-              className="mt-1 block w-16 rounded-lg border border-foreground/20 px-3 py-2 text-center"
-            />
-          </label>
+          <div className="text-sm font-bold w-full">
+            Avatar {avatar && <span className="ml-1">{avatar}</span>}
+            <div className="mt-1">
+              <AvatarPicker value={avatar} onChange={setAvatar} />
+            </div>
+          </div>
           <label className="flex items-center gap-2 text-sm font-bold pb-2.5">
             <input
               type="checkbox"

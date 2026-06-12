@@ -1,8 +1,28 @@
 @import "tailwindcss";
 
-:root {
+/* === TEMA: Fase de Grupos (verde/amarelo Brasil) === */
+:root,
+.theme-grupos {
   --background: #f6f8f4;
   --foreground: #14241a;
+  --header-bg: #0a7e3d;
+  --header-accent: #f5b400;
+}
+
+/* === TEMA: Mata-mata (azul/dourado) === */
+.theme-matamata {
+  --background: #f0f4f8;
+  --foreground: #0d1b2a;
+  --header-bg: #1a3a5c;
+  --header-accent: #f5b400;
+}
+
+/* === TEMA: Final (dourado premium) === */
+.theme-final {
+  --background: #fdf8ec;
+  --foreground: #2a1d00;
+  --header-bg: #a07000;
+  --header-accent: #fff176;
 }
 
 @theme inline {
@@ -17,6 +37,21 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Animação estrelas na fase final */
+.theme-final header::after {
+  content: "✨";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  animation: sparkle 1.5s ease-in-out infinite alternate;
+}
+@keyframes sparkle {
+  from { opacity: 0.5; transform: translateY(-50%) scale(0.9); }
+  to   { opacity: 1;   transform: translateY(-50%) scale(1.1); }
 }
 
 input[type="number"]::-webkit-outer-spin-button,

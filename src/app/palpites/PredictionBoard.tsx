@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { formatDay, formatTime, dayKey, STAGE_LABELS, STAGE_ORDER } from "@/lib/format";
+import { CountdownBadge } from "@/components/CountdownBadge";
 
 interface TeamInfo {
   code: string;
@@ -146,9 +147,9 @@ export function PredictionBoard({
                       {STAGE_LABELS[m.stage]}
                       {m.group ? ` · Grupo ${m.group}` : ""} · Jogo {m.num}
                     </span>
-                    <span>
+                    <span className="flex items-center gap-1">
                       {formatTime(new Date(m.kickoff))}
-                      {locked ? " 🔒" : ""}
+                      {locked ? " 🔒" : <CountdownBadge kickoff={m.kickoff} />}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
