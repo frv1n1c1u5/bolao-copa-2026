@@ -32,6 +32,24 @@ interface MatchCoverage {
   missingPeople: string[];
 }
 
+interface ApiProofMarket {
+  key: string;
+  label: string;
+  available: boolean;
+  detail: string;
+}
+
+interface ApiProofResult {
+  ok: boolean;
+  apiMatchId: number;
+  status: string;
+  homeName: string | null;
+  awayName: string | null;
+  availableMarkets: number;
+  viable: boolean;
+  markets: ApiProofMarket[];
+}
+
 type Tab = "resultados" | "confrontos" | "participantes" | "extras" | "config";
 
 export function AdminPanel({
@@ -140,6 +158,13 @@ function ResultsTab({
   const [syncing, setSyncing] = useState(false);
   const [savingMatch, setSavingMatch] = useState<Record<number, boolean>>({});
   const [gameWeek, setGameWeek] = useState("1");
+  const probeCandidates = matches.filter((m) => m.home && m.away);
+  const [probeMatchNum, setProbeMatchNum] = useState(
+    probeCandidates[0]?.num.toString() ?? ""
+  );
+  const [probing, setProbing] = useState(false);
+  const [probeResult, setProbeResult] = useState<ApiProofResult | null>(null);
+  const [probeError, setProbeError] = useState("");
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   // Mostra jogos que já começaram e ainda não têm resultado, mais os recém-encerrados.
@@ -167,6 +192,100 @@ function ResultsTab({
           Configure FOOTBALL_DATA_API_KEY para habilitar a sincronização automática.
         </p>
       )}
+      <section className="rounded-2xl border border-pitch/10 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-52 flex-1">
+            <h2 className="font-black text-pitch">Prova 1v1 com dados avancados</h2>
+            <p className="text-xs text-foreground/55">
+              Checa se a API entrega pelo menos 4 mercados alem do placar. Se nao passar,
+              a aba 1v1 continua abortada.
+            </p>
+          </div>
+          <select
+            value={probeMatchNum}
+            onChange={(e) => setProbeMatchNum(e.target.value)}
+            className="min-w-64 rounded-lg border border-foreground/20 bg-white px-3 py-2 text-sm"
+          >
+            {probeCandidates.map((m) => (
+              <option key={m.num} value={m.num}>
+                Jogo {m.num} - {m.home?.name} x {m.away?.name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={async () => {
+              setProbing(true);
+              setProbeResult(null);
+              setProbeError("");
+              const res = await fetch("/api/admin/api-proof", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ matchNum: parseInt(probeMatchNum, 10) }),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (res.ok) {
+                setProbeResult(data);
+              } else {
+                setProbeError(data.error ?? `Falha ${res.status}`);
+              }
+              setProbing(false);
+            }}
+            disabled={!syncAvailable || !probeMatchNum || probing}
+            className="rounded-lg bg-pitch px-4 py-2 text-sm font-bold text-white transition hover:bg-pitch-dark disabled:opacity-40"
+          >
+            {probing ? "Testando..." : "Testar API"}
+          </button>
+        </div>
+        {!syncAvailable && (
+          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            Configure FOOTBALL_DATA_API_KEY para executar a prova.
+          </p>
+        )}
+        {probeError && (
+          <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-700">
+            {probeError}
+          </p>
+        )}
+        {probeResult && (
+          <div
+            className={`mt-3 rounded-xl px-3 py-3 text-sm ${
+              probeResult.viable ? "bg-emerald-50 text-emerald-900" : "bg-slate-50 text-slate-700"
+            }`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <b>
+                {probeResult.viable
+                  ? "API aprovada para desenhar o 1v1"
+                  : "API ainda nao sustenta o 1v1"}
+              </b>
+              <span className="text-xs font-bold">
+                {probeResult.availableMarkets}/8 mercados disponiveis
+              </span>
+            </div>
+            <p className="mt-1 text-xs opacity-80">
+              API match #{probeResult.apiMatchId} - {probeResult.homeName} x{" "}
+              {probeResult.awayName} - status {probeResult.status}
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {probeResult.markets.map((market) => (
+                <div
+                  key={market.key}
+                  className={`rounded-lg border px-3 py-2 ${
+                    market.available
+                      ? "border-emerald-200 bg-white/80"
+                      : "border-slate-200 bg-white/60 opacity-70"
+                  }`}
+                >
+                  <div className="text-xs font-black">
+                    {market.available ? "OK" : "--"} {market.label}
+                  </div>
+                  <div className="text-xs opacity-75">{market.detail}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-sm font-bold">Calcular badges da rodada:</span>
         <input
