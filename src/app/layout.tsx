@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { getCurrentPhase } from "@/lib/format";
+import { db } from "@/db";
+import { duels } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 import { Toaster } from "@/components/Toaster";
 import { NavMenu } from "@/components/NavMenu";
@@ -34,6 +37,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getSession();
+  const pendingDuelInvites = session
+    ? (
+        await db
+          .select()
+          .from(duels)
+          .where(and(eq(duels.challengedId, session.id), eq(duels.status, "pending")))
+      ).length
+    : 0;
   const phase = getCurrentPhase();
   const mobileInitial = session?.name?.trim().charAt(0).toUpperCase();
 
@@ -54,10 +65,15 @@ export default async function RootLayout({
                   <Link
                     href="/meu-desempenho"
                     aria-label="Abrir meu desempenho"
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/16 bg-white/10 text-sm font-black text-white shadow-sm transition hover:bg-white/18"
+                    className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/16 bg-white/10 text-sm font-black text-white shadow-sm transition hover:bg-white/18"
                     title={session.name}
                   >
                     {mobileInitial}
+                    {pendingDuelInvites > 0 && (
+                      <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-gold px-1.5 py-0.5 text-[10px] font-black text-pitch-dark shadow-sm">
+                        {pendingDuelInvites > 9 ? "9+" : pendingDuelInvites}
+                      </span>
+                    )}
                   </Link>
                 ) : (
                   <Link
@@ -68,7 +84,11 @@ export default async function RootLayout({
                   </Link>
                 )}
               </div>
-              <NavMenu userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
+              <NavMenu
+                userName={session?.name ?? null}
+                isAdmin={session?.isAdmin ?? false}
+                pendingDuelInvites={pendingDuelInvites}
+              />
             </div>
           </header>
           <main className="mx-auto flex-1 w-full max-w-5xl px-4 py-5 pb-24 md:py-6 md:pb-6">
@@ -78,7 +98,11 @@ export default async function RootLayout({
           <footer className="hidden md:block mx-auto w-full max-w-5xl px-4 py-8 text-center text-xs text-foreground/50">
             Bolão da família — Copa do Mundo 2026 🏆 Que os palpites estejam inspirados!
           </footer>
-          <MobileTabBar userName={session?.name ?? null} isAdmin={session?.isAdmin ?? false} />
+          <MobileTabBar
+            userName={session?.name ?? null}
+            isAdmin={session?.isAdmin ?? false}
+            pendingDuelInvites={pendingDuelInvites}
+          />
         </div>
       </body>
     </html>

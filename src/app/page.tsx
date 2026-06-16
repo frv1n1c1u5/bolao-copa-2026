@@ -2,20 +2,27 @@ import Link from "next/link";
 import { getMatchesWithTeams, getStandings } from "@/lib/queries";
 import { getSession } from "@/lib/auth";
 import { db } from "@/db";
-import { predictions } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { formatKickoff, STAGE_LABELS } from "@/lib/format";
+import { duels, predictions } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { dayKey, formatDay, formatKickoff, formatTime, STAGE_LABELS } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const session = await getSession();
-  const [allMatches, standings, myPreds] = await Promise.all([
+  const [allMatches, standings, myPreds, pendingDuelInvites] = await Promise.all([
     getMatchesWithTeams(),
     getStandings(),
     session
       ? db.select().from(predictions).where(eq(predictions.participantId, session.id))
       : Promise.resolve([]),
+    session
+      ? db
+          .select()
+          .from(duels)
+          .where(and(eq(duels.challengedId, session.id), eq(duels.status, "pending")))
+          .then((rows) => rows.length)
+      : Promise.resolve(0),
   ]);
 
   // eslint-disable-next-line react-hooks/purity
@@ -34,6 +41,19 @@ export default async function HomePage() {
   const progressPct = totalPalpitable > 0 ? Math.round((completed / totalPalpitable) * 100) : 0;
   const me = session ? standings.find((s) => s.participantId === session.id) : null;
   const leader = standings[0];
+  const todayKey = dayKey(new Date(now));
+  const todayMatches = allMatches.filter((m) => m.home && m.away && dayKey(m.kickoff) === todayKey);
+  const todayUpcoming = todayMatches.filter((m) => m.kickoff.getTime() > now);
+  const todayFinished = todayMatches.filter((m) => m.status === "finished");
+  const todayMissing = session
+    ? todayUpcoming.filter((m) => !predSet.has(m.num))
+    : [];
+  const nextTodayMatch = todayUpcoming[0] ?? null;
+  const todayHeadline = !todayMatches.length
+    ? "Hoje esta mais leve: nenhum jogo da Copa no calendario."
+    : todayUpcoming.length > 0
+      ? `Ainda ha ${todayUpcoming.length} jogo${todayUpcoming.length > 1 ? "s" : ""} hoje.`
+      : `Os ${todayFinished.length} jogo${todayFinished.length > 1 ? "s" : ""} de hoje ja foram encerrados.`;
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -159,6 +179,139 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="surface-card rounded-[1.5rem] p-4 md:p-5">
+        <div className="section-heading">
+          <div>
+            <span className="section-kicker">Rodada do dia</span>
+            <h2 className="mt-2 text-xl font-black">Hoje no bolao</h2>
+          </div>
+          <span className="rounded-full bg-pitch/8 px-3 py-1 text-xs font-black text-pitch-dark">
+            {formatDay(new Date(now))}
+          </span>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-[1.35rem] bg-[linear-gradient(135deg,rgba(10,126,61,0.08),rgba(255,193,7,0.10))] p-4 ring-1 ring-black/5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-pitch/70">
+              Painel rapido
+            </p>
+            <h3 className="mt-2 text-xl font-black text-pitch-dark">{todayHeadline}</h3>
+            <p className="mt-2 text-sm text-foreground/62">
+              {nextTodayMatch
+                ? `Proximo apito: ${nextTodayMatch.home?.name} x ${nextTodayMatch.away?.name} as ${formatTime(nextTodayMatch.kickoff)}.`
+                : todayMatches.length > 0
+                  ? "Agora o foco e comparar o que cada um palpitou."
+                  : "Use o tempo livre para revisar ranking, extras e desafios 1v1."}
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm ring-1 ring-black/5">
+                <div className="text-[11px] font-black uppercase tracking-[0.14em] text-foreground/45">
+                  Jogos
+                </div>
+                <div className="mt-1 text-2xl font-black text-pitch-dark">{todayMatches.length}</div>
+              </div>
+              <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm ring-1 ring-black/5">
+                <div className="text-[11px] font-black uppercase tracking-[0.14em] text-foreground/45">
+                  Sem palpite
+                </div>
+                <div className="mt-1 text-2xl font-black text-pitch-dark">
+                  {session ? todayMissing.length : "?"}
+                </div>
+              </div>
+              <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm ring-1 ring-black/5">
+                <div className="text-[11px] font-black uppercase tracking-[0.14em] text-foreground/45">
+                  Convites 1v1
+                </div>
+                <div className="mt-1 text-2xl font-black text-pitch-dark">{pendingDuelInvites}</div>
+              </div>
+              <div className="rounded-2xl bg-white/80 px-3 py-3 shadow-sm ring-1 ring-black/5">
+                <div className="text-[11px] font-black uppercase tracking-[0.14em] text-foreground/45">
+                  Encerrados
+                </div>
+                <div className="mt-1 text-2xl font-black text-pitch-dark">{todayFinished.length}</div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href={session ? "/palpites" : "/login"}
+                className="rounded-full bg-gold px-5 py-2.5 text-sm font-black text-pitch-dark transition hover:brightness-110"
+              >
+                {session
+                  ? todayMissing.length > 0
+                    ? "Resolver rodada"
+                    : "Abrir palpites"
+                  : "Entrar para acompanhar"}
+              </Link>
+              {session && (
+                <Link
+                  href="/duelos"
+                  className="rounded-full border border-black/8 bg-white/65 px-5 py-2.5 text-sm font-bold text-pitch-dark transition hover:bg-white/82"
+                >
+                  {pendingDuelInvites > 0
+                    ? `Ver ${pendingDuelInvites} convite${pendingDuelInvites > 1 ? "s" : ""}`
+                    : "Abrir 1v1"}
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            {todayMatches.slice(0, 4).map((m) => {
+              const hasPrediction = predSet.has(m.num);
+              const started = m.kickoff.getTime() <= now;
+              const statusLabel =
+                m.status === "finished"
+                  ? "encerrado"
+                  : started
+                    ? "ao vivo"
+                    : session
+                      ? hasPrediction
+                        ? "ok"
+                        : "faltando"
+                      : "aberto";
+              const statusClass =
+                statusLabel === "faltando"
+                  ? "bg-amber-100 text-amber-800"
+                  : statusLabel === "ok"
+                    ? "bg-emerald-100 text-emerald-800"
+                    : statusLabel === "ao vivo"
+                      ? "bg-pitch/10 text-pitch-dark"
+                      : "bg-foreground/8 text-foreground/65";
+
+              return (
+                <div
+                  key={m.num}
+                  className="rounded-2xl border border-black/5 bg-white/72 px-4 py-3 shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-sm font-black text-pitch-dark">
+                      {m.home?.flag} {m.home?.name} x {m.away?.flag} {m.away?.name}
+                    </div>
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-black uppercase tracking-wide ${statusClass}`}>
+                      {statusLabel}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-2 text-xs text-foreground/55">
+                    <span>
+                      {STAGE_LABELS[m.stage]}
+                      {m.group ? ` - Grupo ${m.group}` : ""}
+                    </span>
+                    <span>{formatKickoff(m.kickoff)}</span>
+                  </div>
+                </div>
+              );
+            })}
+            {todayMatches.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-black/10 bg-white/65 p-4 text-sm text-foreground/60">
+                Sem rodada hoje. O app pode respirar um pouco.
+              </div>
+            )}
           </div>
         </div>
       </section>

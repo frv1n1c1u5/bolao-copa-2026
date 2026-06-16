@@ -18,21 +18,30 @@ const NAV = [
 interface NavMenuProps {
   userName: string | null;
   isAdmin: boolean;
+  pendingDuelInvites?: number;
 }
 
 // Apenas desktop; mobile usa MobileTabBar.
-export function NavMenu({ userName, isAdmin }: NavMenuProps) {
+export function NavMenu({ userName, isAdmin, pendingDuelInvites = 0 }: NavMenuProps) {
   return (
     <nav className="hidden md:flex flex-wrap gap-1 text-sm font-medium ml-auto items-center">
-      {NAV.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className="px-3 py-1.5 rounded-full hover:bg-pitch-dark transition-colors"
-        >
-          {item.label}
-        </Link>
-      ))}
+      {NAV.map((item) => {
+        const showBadge = item.href === "/duelos" && pendingDuelInvites > 0;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="relative px-3 py-1.5 rounded-full hover:bg-pitch-dark transition-colors"
+          >
+            {item.label}
+            {showBadge && (
+              <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-gold px-1.5 py-0.5 text-[10px] font-black text-pitch-dark shadow-sm">
+                {pendingDuelInvites > 9 ? "9+" : pendingDuelInvites}
+              </span>
+            )}
+          </Link>
+        );
+      })}
       {isAdmin && (
         <Link
           href="/admin"

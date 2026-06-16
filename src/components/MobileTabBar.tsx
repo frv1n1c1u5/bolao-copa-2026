@@ -6,16 +6,16 @@ import { useState } from "react";
 import { LogoutButton } from "./LogoutButton";
 
 const PRIMARY = [
-  { href: "/", label: "Início", icon: "🏠" },
+  { href: "/", label: "Inicio", icon: "🏠" },
   { href: "/palpites", label: "Palpites", icon: "📋" },
   { href: "/classificacao", label: "Ranking", icon: "🏆" },
-  { href: "/premiacao", label: "Prêmios", icon: "🎁" },
+  { href: "/premiacao", label: "Premios", icon: "🎁" },
 ];
 
 const MORE = [
   { href: "/duelos", label: "1v1", icon: "⚔️", auth: true },
   { href: "/meu-desempenho", label: "Meu Desempenho", icon: "📊", auth: true },
-  { href: "/estatisticas", label: "Estatísticas", icon: "📈", auth: false },
+  { href: "/estatisticas", label: "Estatisticas", icon: "📈", auth: false },
   { href: "/extras", label: "Extras", icon: "⭐", auth: false },
   { href: "/regras", label: "Regras", icon: "📜", auth: false },
 ];
@@ -23,9 +23,10 @@ const MORE = [
 interface Props {
   userName: string | null;
   isAdmin: boolean;
+  pendingDuelInvites?: number;
 }
 
-export function MobileTabBar({ userName, isAdmin }: Props) {
+export function MobileTabBar({ userName, isAdmin, pendingDuelInvites = 0 }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -33,7 +34,7 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
   }
 
-  const moreIsActive = MORE.some((l) => active(l.href)) || (isAdmin && pathname.startsWith("/admin"));
+  const moreIsActive = MORE.some((link) => active(link.href)) || (isAdmin && pathname.startsWith("/admin"));
 
   return (
     <>
@@ -61,11 +62,23 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
 
             <button
               onClick={() => setOpen(true)}
+              aria-label={
+                pendingDuelInvites > 0
+                  ? `Mais, ${pendingDuelInvites} convite${pendingDuelInvites > 1 ? "s" : ""} pendente${pendingDuelInvites > 1 ? "s" : ""}`
+                  : "Mais"
+              }
               className={`flex-1 rounded-2xl px-1 py-2 text-center transition ${
                 moreIsActive || open ? "bg-white/12 text-gold" : "text-white/62"
               }`}
             >
-              <span className="block text-[20px] leading-none">⋯</span>
+              <span className="relative block text-[20px] leading-none">
+                ⋯
+                {pendingDuelInvites > 0 && (
+                  <span className="absolute -right-1 top-0 inline-flex min-w-5 -translate-y-1/3 items-center justify-center rounded-full bg-gold px-1.5 py-0.5 text-[10px] font-black text-pitch-dark shadow-sm">
+                    {pendingDuelInvites > 9 ? "9+" : pendingDuelInvites}
+                  </span>
+                )}
+              </span>
               <span className="mt-1 block text-[10px] font-semibold">Mais</span>
             </button>
           </div>
@@ -77,7 +90,7 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
           <div className="fixed inset-0 z-50 bg-black/55 md:hidden" onClick={() => setOpen(false)} />
 
           <div
-            className="fixed bottom-0 left-0 right-0 z-50 md:hidden rounded-t-[1.75rem] bg-[color:var(--header-bg)] px-3 pt-3 shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-[1.75rem] bg-[color:var(--header-bg)] px-3 pt-3 shadow-2xl md:hidden"
             style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
           >
             <div className="flex justify-center pb-3">
@@ -85,7 +98,7 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
             </div>
 
             <nav className="flex flex-col gap-1 pb-2">
-              {MORE.filter((l) => !l.auth || userName).map((link) => (
+              {MORE.filter((link) => !link.auth || userName).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -96,6 +109,11 @@ export function MobileTabBar({ userName, isAdmin }: Props) {
                 >
                   <span className="w-7 text-center text-xl leading-none">{link.icon}</span>
                   <span className="font-medium text-white">{link.label}</span>
+                  {link.href === "/duelos" && pendingDuelInvites > 0 && (
+                    <span className="rounded-full bg-gold px-2 py-0.5 text-[10px] font-black text-pitch-dark">
+                      {pendingDuelInvites > 9 ? "9+" : pendingDuelInvites}
+                    </span>
+                  )}
                   {active(link.href) && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-gold" />}
                 </Link>
               ))}
