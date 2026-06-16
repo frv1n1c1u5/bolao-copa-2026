@@ -16,6 +16,7 @@ export const ZEBRA_TEAMS = [
   { code: "PAR", reason: "Quartas de final em 2010, imprevisível no mata-mata" },
   { code: "NOR", reason: "Haaland, nunca foi à Copa mas pode chegar longe" },
   { code: "SUI", reason: "Quartas em 2022, sempre surpreende" },
+  { code: "CPV", reason: "Seleção em ascensão, organizada e com perfil de surpresa" },
   { code: "KSA", reason: "Venceu a Argentina na fase de grupos em 2022" },
   { code: "CIV", reason: "Potência africana, elenco de alto nível europeu" },
 ] as const;
