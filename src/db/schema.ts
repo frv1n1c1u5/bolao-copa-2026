@@ -112,3 +112,40 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   authKey: text("auth_key").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Duelos 1v1 simbolicos. Status: pending | accepted | declined | resolved
+export const duels = pgTable("duels", {
+  id: serial("id").primaryKey(),
+  matchNum: integer("match_num")
+    .notNull()
+    .references(() => matches.num),
+  challengerId: integer("challenger_id")
+    .notNull()
+    .references(() => participants.id),
+  challengedId: integer("challenged_id")
+    .notNull()
+    .references(() => participants.id),
+  status: text("status").notNull().default("pending"),
+  markets: text("markets").notNull(),
+  winnerParticipantId: integer("winner_participant_id").references(() => participants.id),
+  resultSummary: text("result_summary"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+});
+
+export const duelPicks = pgTable(
+  "duel_picks",
+  {
+    duelId: integer("duel_id")
+      .notNull()
+      .references(() => duels.id),
+    participantId: integer("participant_id")
+      .notNull()
+      .references(() => participants.id),
+    picks: text("picks").notNull(),
+    points: integer("points").notNull().default(0),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.duelId, t.participantId] })]
+);

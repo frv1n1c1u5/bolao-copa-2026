@@ -13,6 +13,7 @@ const PRIMARY = [
 ];
 
 const MORE = [
+  { href: "/duelos", label: "1v1", icon: "⚔️", auth: true },
   { href: "/meu-desempenho", label: "Meu Desempenho", icon: "📊", auth: true },
   { href: "/estatisticas", label: "Estatísticas", icon: "📈", auth: false },
   { href: "/extras", label: "Extras", icon: "⭐", auth: false },

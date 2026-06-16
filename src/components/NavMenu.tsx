@@ -5,12 +5,13 @@ import { LogoutButton } from "./LogoutButton";
 import { PushButton } from "./PushButton";
 
 const NAV = [
-  { href: "/", label: "Início" },
+  { href: "/", label: "Inicio" },
   { href: "/palpites", label: "Palpites" },
-  { href: "/classificacao", label: "Classificação" },
-  { href: "/estatisticas", label: "Estatísticas" },
+  { href: "/classificacao", label: "Classificacao" },
+  { href: "/duelos", label: "1v1" },
+  { href: "/estatisticas", label: "Estatisticas" },
   { href: "/extras", label: "Extras" },
-  { href: "/premiacao", label: "Premiação" },
+  { href: "/premiacao", label: "Premiacao" },
   { href: "/regras", label: "Regras" },
 ];
 
@@ -19,7 +20,7 @@ interface NavMenuProps {
   isAdmin: boolean;
 }
 
-// Apenas desktop — mobile usa MobileTabBar
+// Apenas desktop; mobile usa MobileTabBar.
 export function NavMenu({ userName, isAdmin }: NavMenuProps) {
   return (
     <nav className="hidden md:flex flex-wrap gap-1 text-sm font-medium ml-auto items-center">
